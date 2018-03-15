@@ -1,4 +1,4 @@
-package com.example.android.popularmoviesstage2;
+package com.example.android.popularmoviesstage2.loaders;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;

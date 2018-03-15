@@ -9,14 +9,14 @@ import android.os.Parcelable;
 
 public class Trailer implements Parcelable {
 
-    int videoId;
+    String videoId;
 
-    public Trailer(int videoId) {
+    public Trailer(String videoId) {
         this.videoId = videoId;
     }
 
     protected Trailer(Parcel in) {
-        videoId = in.readInt();
+        videoId = in.readString();
     }
 
     public static final Creator<Trailer> CREATOR = new Creator<Trailer>() {
@@ -31,7 +31,7 @@ public class Trailer implements Parcelable {
         }
     };
 
-    public int getVideoId() {
+    public String getVideoId() {
         return videoId;
     }
 
@@ -42,6 +42,6 @@ public class Trailer implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(videoId);
+        parcel.writeString(videoId);
     }
 }

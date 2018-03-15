@@ -10,6 +10,7 @@ import java.util.List;
  */
 
 public class Movie implements Parcelable {
+
     private  String moviePosterPath;
     private String movieOriginalTitle;
     private String movieDate;
@@ -18,6 +19,11 @@ public class Movie implements Parcelable {
     private int movieId;
     private List<Review> reviewList;
     private List<Trailer> trailerList;
+    private Status status;
+
+    public enum Status{
+        FAVORITED,UNFAVORITED;
+    }
 
 
     Movie(){}
@@ -27,6 +33,7 @@ public class Movie implements Parcelable {
     }*/
 
     public Movie(Parcel parcel){
+
         this.moviePosterPath=parcel.readString();
         this.movieOriginalTitle=parcel.readString();
         this.movieDate=parcel.readString();
@@ -41,6 +48,7 @@ public class Movie implements Parcelable {
 
     }
     public Movie(String movieOriginalTitle, String moviePosterPath, String movieDate, String moviePlotSynopsis, double movieRating, int movieId) {
+
         this.moviePosterPath = moviePosterPath;
         this.movieOriginalTitle = movieOriginalTitle;
         this.movieDate = movieDate;
@@ -48,7 +56,6 @@ public class Movie implements Parcelable {
         this.movieRating = movieRating;
         this.movieId = movieId;
     }
-
 
     public Movie(String movieOriginalTitle, String moviePosterPath, String movieDate, String moviePlotSynopsis, double movieRating, int movieId, List<Review> reviewList, List<Trailer> trailerList) {
         this.moviePosterPath = moviePosterPath;
@@ -61,6 +68,11 @@ public class Movie implements Parcelable {
         this.trailerList=trailerList;
 
     }
+
+    public int getMovieId() {
+        return movieId;
+    }
+
     public String getMoviePosterPath() {
         return moviePosterPath;
     }
@@ -81,9 +93,6 @@ public class Movie implements Parcelable {
         return movieDate;
     }
 
-    public int getMovieId(){
-        return movieId;
-    }
 
     public List<Review> getReviewList() {
         return reviewList;

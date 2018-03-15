@@ -1,9 +1,14 @@
 package com.example.android.popularmoviesstage2.utils;
 
+import android.app.LoaderManager;
+import android.content.Context;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.android.popularmoviesstage2.pojo.Movie;
+import com.example.android.popularmoviesstage2.pojo.Review;
+import com.example.android.popularmoviesstage2.pojo.Trailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,10 +30,24 @@ import java.util.List;
  */
 
 public class QueryUtils{
+    private static final String TMDB_REQUEST_URL="http://api.themoviedb.org/3/movie";
+    private static final int LOADER_A_ID =1;
+    private static final int LOADER_B_ID=2;
+    private static final String TRAILER_PATH="videos";
+    private static final String REVIEW_PATH = "reviews";
+    private static final String API_KEY="e58cd6903218bfa3ff6cfe1c12977fc9";
+    Movie clickedMovie=null;
+    ArrayList<Review> reviewList;
+    ArrayList<Trailer> trailerList;
+    private static Context mContext;
+    private static LoaderManager mloaderManager;
     private QueryUtils(){}
         private static final String LOG_TAG =QueryUtils.class.getName();
 
-        public static List<Movie> fetchMovieData(String requestUrl){
+        public static List<Movie> fetchMovieData(String requestUrl, Context context){
+
+            mContext=context;
+
 
             // Create URL object
             URL url = createUrl(requestUrl);
@@ -123,8 +142,8 @@ public class QueryUtils{
                 // build up a list of Earthquake objects with the corresponding data.
                 JSONObject root = new JSONObject(movieJson);
                 JSONArray resultsArray = root.getJSONArray("results");
-
-                for (int i=0;i<resultsArray.length();i++){
+//
+                for (int i=0;i< resultsArray.length();i++){
                     JSONObject currentObject = resultsArray.getJSONObject(i);
 
                     String moviePosterUrl= currentObject.getString("poster_path");
@@ -138,9 +157,19 @@ public class QueryUtils{
                     double movieRatings = currentObject.getDouble("vote_average");
 
                     int movieId = currentObject.getInt("id");
-                    // implement sub Loaders
 
-                    Movie movie = new Movie(movieTitle,moviePosterUrl,movieReleaseDate,moviePlotSynopsis,movieRatings,movieId);
+                    // fetch the review and trailer lists
+
+                    List<Review> reviewList = getReviewList(Integer.toString(movieId));
+
+
+                    List<Trailer> trailerList= getTrailerList(Integer.toString(movieId));
+
+
+
+                   // Movie movie = new Movie(movieTitle,moviePosterUrl,movieReleaseDate,moviePlotSynopsis,movieRatings,movieId);
+
+                      Movie movie = new Movie(movieTitle,moviePosterUrl,movieReleaseDate,moviePlotSynopsis,movieRatings,movieId,reviewList,trailerList);
 
 
                     movies.add(movie);
@@ -155,4 +184,73 @@ public class QueryUtils{
             // Return the list of movies
             return movies;
         }
+
+        public static  List<Review> getReviewList(String id){
+            Uri baseUri = Uri.parse(TMDB_REQUEST_URL);
+            Uri.Builder uriBuilder = baseUri.buildUpon();
+            uriBuilder.appendPath(id);
+            uriBuilder.appendPath(REVIEW_PATH);
+            uriBuilder.appendQueryParameter("api_key",API_KEY);
+            List<Review> movieReviewList = QueryUtils1.fetchMovieReviewData(uriBuilder.toString());
+
+            return movieReviewList;
+        }
+
+        public static List<Trailer> getTrailerList(String id){
+
+            Uri baseUri = Uri.parse(TMDB_REQUEST_URL);
+            Uri.Builder uriBuilder = baseUri.buildUpon();
+            uriBuilder.appendPath(id);
+            uriBuilder.appendPath(TRAILER_PATH);
+            uriBuilder.appendQueryParameter("api_key",API_KEY);
+            List<Trailer> movieTrailerList = QueryUtils1.fetchMovieTrailerData(uriBuilder.toString());
+            return movieTrailerList;
+        }
+
+/*    @Override
+    public Loader onCreateLoader(int i, Bundle bundle) {
+        if(id==LOADER_A_ID){
+            Uri baseUri = Uri.parse(TMDB_REQUEST_URL);
+            Uri.Builder uriBuilder = baseUri.buildUpon();
+            uriBuilder.appendPath(Integer.toString(clickedMovie.getMovieId()));
+            uriBuilder.appendPath(TRAILER_PATH);
+            uriBuilder.appendQueryParameter("api_key",API_KEY);
+            return new MovieTrailerLoader(context,uriBuilder.toString());
+        }
+        else if(id==LOADER_B_ID){
+            Uri baseUri = Uri.parse(TMDB_REQUEST_URL);
+            Uri.Builder uriBuilder = baseUri.buildUpon();
+            uriBuilder.appendPath(Integer.toString(clickedMovie.getMovieId()));
+            uriBuilder.appendPath(REVIEW_PATH);
+            uriBuilder.appendQueryParameter("api_key",API_KEY);
+            return new MovieReviewLoader(context,uriBuilder.toString());
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object o) {
+        int id  = loader.getId();
+        if(id== LOADER_A_ID){
+            trailerList = (ArrayList<Trailer>) o;
+
+            if(o!=null || ((ArrayList<Trailer>) o).isEmpty()){
+
+                clickedMovie.setTrailerList(trailerList);
+            }
+        }else if(id == LOADER_B_ID){
+            reviewList = (ArrayList<Review>) o;
+
+            if(reviewList!=null || reviewList.isEmpty()){
+
+                clickedMovie.setReviewList(reviewList);
+            }
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+
+       loader= null;
+    }*/
 }

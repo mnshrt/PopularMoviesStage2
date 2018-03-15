@@ -1,11 +1,9 @@
 package com.example.android.popularmoviesstage2;
 
-import android.content.Context;
-import android.text.method.LinkMovementMethod;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.example.android.popularmoviesstage2.pojo.Trailer;
@@ -16,42 +14,62 @@ import java.util.List;
  * Created by emkayx on 06-11-2017.
  */
 
-public class TrailerListAdapter extends ArrayAdapter<Trailer> {
-    Context context;
+public class TrailerListAdapter extends RecyclerView.Adapter<TrailerListAdapter.TrailerListViewHolder> {
+
     List<Trailer> trailerList;
+    final private TrailerListItemClickListener trailerListItemClickListener;
+    int numberOfListItems;
 
-
-    public TrailerListAdapter(Context context, List<Trailer> trailerList)
+public interface TrailerListItemClickListener{
+    void onListItemClick(int clickedItemIndex);
+}
+    public TrailerListAdapter(int numberOfListItems, List<Trailer> trailerList,TrailerListItemClickListener trailerListItemClickListener)
     {
-        super(context, 0, trailerList);
-        this.context= context;
+        this.numberOfListItems = numberOfListItems;
+      this.trailerListItemClickListener= trailerListItemClickListener;
+
         this.trailerList= trailerList;
 
 
     }
 
 
+
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public TrailerListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.trailer_list_item,parent, false);
+        TrailerListViewHolder trailerListViewHolder = new TrailerListViewHolder(view);
+        return trailerListViewHolder;
+    }
 
-        View listItemView = convertView;
-        if(listItemView== null){
-            listItemView= LayoutInflater.from(getContext()).inflate(R.layout.trailer_list_item,parent,false);
+    @Override
+    public void onBindViewHolder(TrailerListViewHolder holder, int position) {
+          holder.bind(position);
+    }
+
+    @Override
+    public int getItemCount() {
+        return numberOfListItems;
+    }
+
+    public class TrailerListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener
+    {
+        TextView trailerTv;
+        public TrailerListViewHolder(View itemView) {
+            super(itemView);
+            trailerTv = itemView.findViewById(R.id.trailer_link_tv);
+            itemView.setOnClickListener(this);
         }
-        Trailer currentTrailer = trailerList.get(position);
 
-        // get the textview id
-        TextView trailerLinkTextView = listItemView.findViewById(R.id.trailer_link_tv);
+        public void bind(int position) {
+            trailerTv.setText("Trailer " + (position+1));
 
-        trailerLinkTextView.setMovementMethod(LinkMovementMethod.getInstance());
+        }
 
-        String trailerLink ="<a href=\"https://www.youtube.com/watch?v=" +currentTrailer.getVideoId()+"\">Trailer "+ (position+1)+"</a>";
-
-                //http://api.themoviedb.org/3/movie/346364/videos?api_key=e58cd6903218bfa3ff6cfe1c12977fc9
-        trailerLinkTextView.append(trailerLink+"\n");
-
-        return listItemView;
-
-
+        @Override
+        public void onClick(View view) {
+            int clickedPosition = getAdapterPosition();
+            trailerListItemClickListener.onListItemClick(clickedPosition);
+        }
     }
 }
